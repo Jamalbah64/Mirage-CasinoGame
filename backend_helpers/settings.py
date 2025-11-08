@@ -66,7 +66,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "casino_backend.urls"
+ROOT_URLCONF = "backend_helpers.urls"
+WSGI_APPLICATION = "backend_helpers.wsgi.application"
 
 TEMPLATES = [
     {
@@ -83,9 +84,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "casino_backend.wsgi.application"
-
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -100,7 +98,6 @@ DATABASES = {
         'PORT': config('DATABASE_PORT', default='5432'),
     }
 }
-
 
 
 # Password validation

@@ -1,9 +1,8 @@
 """Urls file for sending API requests to the views for users"""
 from rest_framework.routers import DefaultRouter
-from .views import GameViewSet, LeaderboardViewSet
+from .views import UserProfileViewSet
 
 router = DefaultRouter()
-router.register(r'games', GameViewSet, basename='games')
-router.register(r'leaderboard', LeaderboardViewSet, basename='leaderboard')
+router.register(r'users', UserProfileViewSet, basename='users')
 
 urlpatterns = router.urls

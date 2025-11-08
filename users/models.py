@@ -1,7 +1,6 @@
 """File for user profile model in the casino application."""
+# pylint: disable=no-member
 from django.db import models
-
-# Create your models here.
 
 class UserProfile(models.Model):
     """
