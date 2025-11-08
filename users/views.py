@@ -1,3 +1,10 @@
-from django.shortcuts import render
+"""Class-based view for UserProfile model."""
+from rest_framework import viewsets
+from .models import UserProfile
+from .serializers import UserProfileSerializer
 
-# Create your views here.
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """Class-based view for UserProfile model."""
+    queryset = UserProfile.objects.all().order_by("id")
+    serializer_class = UserProfileSerializer
+

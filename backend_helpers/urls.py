@@ -21,10 +21,12 @@ from rest_framework import routers
 from games.views import LeaderboardViewSet
 
 
+
 router = routers.DefaultRouter()
 router.register(r'leaderboard', LeaderboardViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path('api/', include('users.urls')),
+    path('api/', include('games.urls')),
 ]

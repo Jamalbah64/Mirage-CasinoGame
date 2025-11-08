@@ -15,4 +15,4 @@ class UserProfile(models.Model):
 
 
     def __str__(self) -> str:
-        return str(self.username or "")
+        return str(self.username or "") # Return the username as the string representation of the profile

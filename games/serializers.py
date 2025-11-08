@@ -1,7 +1,14 @@
 """Serializer for the Leaderboard model."""
 from rest_framework import serializers
-from .models import Leaderboard
+from .models import Game, Leaderboard
 
+
+class GameSerializer(serializers.ModelSerializer):
+    """Serializer for the Game model"""
+    class Meta:
+        """Class that defines the model and fields to be serialized"""
+        model = Game
+        fields = "__all__"
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     """Serializer for the Leaderboard model."""
