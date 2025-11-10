@@ -61,4 +61,3 @@ class RegisterView(APIView):
             {"token": token.key, "username": username, "display_name": display_name},
             status=status.HTTP_201_CREATED
         )
-

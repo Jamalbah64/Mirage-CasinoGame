@@ -78,3 +78,34 @@ def play_match3(request):
     profile.coins += winnings
     profile.save()
     return Response({'board': board, 'match': win, 'winnings': winnings, 'coins': profile.coins})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def play_coinflip(request):
+    """
+    POST: User guesses 'heads' or 'tails'.
+    Cost: 5 coins.  Win: 8 coins if correct, 0 if wrong.
+    """
+    user = request.user
+    profile = UserProfile.objects.get(username=user.username)
+    stake = 5
+    guess = (request.data.get("guess") or "").lower()
+
+    if profile.coins < stake:
+        return Response({"detail": "Insufficient coins"}, status=400)
+    if guess not in ("heads", "tails"):
+        return Response({"detail": "Invalid guess: must be 'heads' or 'tails'"}, status=400)
+
+    outcome = random.choice(["heads", "tails"])
+    profile.coins -= stake
+    winnings = 8 if guess == outcome else 0
+    profile.coins += winnings
+    profile.save()
+
+    return Response({
+        "guess": guess,
+        "outcome": outcome,
+        "won": guess == outcome,
+        "winnings": winnings,
+        "coins": profile.coins
+    })

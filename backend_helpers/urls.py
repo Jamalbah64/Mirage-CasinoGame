@@ -19,8 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from games.views import LeaderboardViewSet
-from rest_framework.authtoken.views import obtain_auth_token # to obtain auth tokens
-
+from rest_framework.authtoken.views import obtain_auth_token  # to obtain auth tokens
 
 
 router = routers.DefaultRouter()
