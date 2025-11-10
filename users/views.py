@@ -2,12 +2,16 @@
 """Class-based view file for UserProfile model."""
 from django.contrib.auth import get_user_model
 from django.db import transaction
+
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from users.models import UserProfile
+
+from .models import UserProfile
+from .serializers import UserProfileSerializer
 
 User = get_user_model()
 
@@ -57,3 +61,4 @@ class RegisterView(APIView):
             {"token": token.key, "username": username, "display_name": display_name},
             status=status.HTTP_201_CREATED
         )
+
