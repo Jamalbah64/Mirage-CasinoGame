@@ -1,8 +1,9 @@
 """Urls file for sending API requests to the views for users"""
-from rest_framework.routers import DefaultRouter
-from .views import UserProfileViewSet
+from rest_framework.authtoken.views import obtain_auth_token
+from django.urls import path
+from .views import RegisterView
 
-router = DefaultRouter()
-router.register(r'users', UserProfileViewSet, basename='users')
-
-urlpatterns = router.urls
+urlpatterns = [
+    path("auth/register/", RegisterView.as_view()),
+    path("auth/login/", obtain_auth_token),  # POST {"username","password"} -> {"token": "..."}
+]
