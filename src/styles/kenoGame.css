@@ -1,0 +1,252 @@
+/* ==== KENO GAME STYLES ==== */
+
+/* Top info bar over the main area */
+.keno-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+/* Main layout: grid left, betting panel right */
+.keno-main {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap; /* stacks on small screens */
+}
+
+/* Wrapper for the number grid + drawn numbers */
+.keno-grid-wrapper {
+  flex: 0 1 auto;
+}
+
+/* Grid of 1–40 numbers: 8 columns x 5 rows */
+.keno-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(2.5rem, 1fr));
+  gap: 0.5rem;
+  max-width: 500px;
+  margin: 0 auto 1rem auto;
+}
+
+/* Base styling for each number cell */
+.keno-cell {
+  border: 2px solid #444;
+  border-radius: 10px;
+  padding: 0.5rem;
+  background-color: #1e1e1e;
+  color: #eee;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Hover effect */
+.keno-cell:hover {
+  transform: translateY(-3px) scale(1.03);
+}
+
+/* Selected = bright neon blue */
+.keno-cell.selected {
+  background: linear-gradient(135deg, #2962ff, #0039cb);
+  border-color: #82b1ff;
+  box-shadow: 0px 0px 10px rgba(41, 98, 255, 0.7);
+  transform: scale(1.08);
+  color: white;
+  font-weight: 700;
+}
+
+/* Drawn by the game (after draw) */
+.keno-cell.drawn {
+  border-color: #f0c14b;
+  background: linear-gradient(145deg, #2b2b2b, #3a3a3a);
+}
+
+/* Correct hit: selected + drawn */
+.keno-cell.hit {
+  background: radial-gradient(circle at top, #3bff7a, #158f43);
+  border-color: #aaffc4;
+  color: #02140a;
+  font-weight: 700;
+}
+
+/* ===== RIGHT-SIDE BETTING PANEL ===== */
+
+.keno-bet-panel {
+  flex: 0 0 260px;
+  padding: 1rem;
+  border-radius: 14px;
+  background: radial-gradient(circle at top, #111827, #020617);
+  border: 1px solid rgba(250, 204, 21, 0.5);
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.9),
+    0 0 12px rgba(250, 204, 21, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.keno-bet-title {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #fef9c3;
+  margin-bottom: 0.25rem;
+}
+
+.keno-balance {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.keno-balance-value {
+  color: #ffd54f;
+  font-weight: 700;
+}
+
+.keno-bet-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.keno-bet-label {
+  opacity: 0.9;
+}
+
+.keno-bet-buttons-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.keno-bet-amount {
+  min-width: 2.4rem;
+  text-align: center;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  background-color: #1f2933;
+  border: 1px solid #4b5563;
+}
+
+.keno-bet-btn {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  background: #111827;
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+.keno-bet-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  box-shadow: 0 0 8px rgba(129, 140, 248, 0.8);
+  transform: translateY(-1px);
+}
+
+.keno-bet-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.keno-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.keno-action-button {
+  width: 100%;
+}
+
+/* Last result text inside betting panel */
+.keno-last-win {
+  font-size: 0.85rem;
+  text-align: left;
+  color: #e5e7eb;
+}
+
+/* Back button tucked into panel */
+.keno-back-inline {
+  margin-top: 0.4rem;
+  width: 10%;
+  height: 10%;
+}
+
+/* ===== DRAWN NUMBERS & MESSAGE ===== */
+
+.keno-drawn {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.keno-drawn-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.drawn-number {
+  min-width: 2rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid #f0c14b;
+  font-size: 0.85rem;
+  background-color: #242424;
+  color: #f7f0d0;
+}
+
+.drawn-number.hit {
+  background-color: #35d16c;
+  color: #02140a;
+  border-color: #b1ffd4;
+  font-weight: 600;
+}
+
+/* Result message under everything */
+.keno-message {
+  text-align: center;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* (Optional) legacy controls: not used now but safe to keep */
+.keno-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .keno-main {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .keno-bet-panel {
+    width: 100%;
+    max-width: 400px;
+  }
+}

@@ -104,3 +104,24 @@ h2 {
 .buttons {
   margin-top: 10px;
 }
+
+.hands-row {
+  display: flex;
+  flex-direction: column;      /* stack on small screens */
+  gap: 100px;
+  margin: 20px 0;
+}
+
+/* On wider screens, put them side by side */
+@media (min-width: 700px) {
+  .hands-row {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .dealer-hand,
+  .player-hand {
+    flex: 1;
+  }
+}

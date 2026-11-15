@@ -1,11 +1,41 @@
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import "../../styles/rideTheBus.css";
 
-export default function RideTheBus() {
+export default function RideTheBus({ onCoinsChange }) {
   const navigate = useNavigate();
 
-   // Create a full deck
+  // ===== Coins =====
+  const [coins, setCoins] = useState(null);
+  const [loadingCoins, setLoadingCoins] = useState(true);
+
+  // ===== Betting / Run =====
+  const MIN_BET = 1;
+  const MAX_BET = 50;
+
+  const [bet, setBet] = useState(5);
+  const [runActive, setRunActive] = useState(false);
+  const [awaitingDecision, setAwaitingDecision] = useState(false);
+
+  // 0 = none cleared, 1..4 = rounds cleared
+  const [completedRounds, setCompletedRounds] = useState(0);
+
+  // round being played (1..4). When awaitingDecision=true, this stores the NEXT round number.
+  const [round, setRound] = useState(0);
+
+  // cards[0] after round1, cards[1] after round2, cards[2] after round3, cards[3] after round4
+  const [cards, setCards] = useState([]);
+
+  const [deck, setDeck] = useState([]);
+  const [message, setMessage] = useState("");
+
+  // multipliers for cashout/win (total return)
+  const CASHOUT_MULTIPLIERS = useMemo(
+    () => ({ 1: 2, 2: 4, 3: 8, 4: 16 }),
+    []
+  );
+
+  // ===== Deck helpers =====
   const createDeck = () => {
     const suits = ["hearts", "diamonds", "clubs", "spades"];
     const values = [
@@ -24,62 +54,172 @@ export default function RideTheBus() {
       { label: "King", num: 13 },
     ];
 
-    let deck = [];
+    const d = [];
     for (let s of suits) {
-      for (let v of values) {
-        deck.push({ suit: s, label: v.label, value: v.num });
-      }
+      for (let v of values) d.push({ suit: s, label: v.label, value: v.num });
     }
-    return deck.sort(() => Math.random() - 0.5);
+    return d.sort(() => Math.random() - 0.5);
   };
 
-  // State
-  const [deck, setDeck] = useState(createDeck());
-  const [round, setRound] = useState(1);
-  const [cards, setCards] = useState([]);
-  const [message, setMessage] = useState("");
 
-  // Draw card
-  const drawCard = () => {
+  const popCardFromDeck = () => {
     const newDeck = [...deck];
     const card = newDeck.pop();
     setDeck(newDeck);
     return card;
   };
 
-  // Reset everything on ANY wrong answer
-  const restart = (customMessage = "") => {
-    setDeck(createDeck());
-    setRound(1);
-    setCards([]);
-    setMessage(customMessage);
+  // ===== Load coins =====
+  useEffect(() => {
+    fetch("/api/profile", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        setCoins(data.coins);
+        setLoadingCoins(false);
+      })
+      .catch((err) => {
+        console.error("RideTheBus: error loading profile:", err);
+        setLoadingCoins(false);
+      });
+  }, []);
+
+  // ===== Backend settlement =====
+  const settleRun = async (outcome, roundsCompletedFinal) => {
+    try {
+      const res = await fetch("/api/ride-the-bus/result", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          bet,
+          outcome,
+          roundsCompleted: roundsCompletedFinal,
+        }),
+      });
+
+      // if route isn't mounted you get HTML, so guard it:
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error("Non-JSON response (check backend route mounting)");
+      }
+
+      const data = await res.json();
+
+      if (typeof data.coins === "number") {
+        setCoins(data.coins);
+        onCoinsChange?.(data.coins);
+      }
+
+      if (outcome === "cashout") {
+        setMessage(`💰 Cashed out! +${data.winnings ?? 0} coins.`);
+      } else if (outcome === "win") {
+        setMessage(`🏆 You cleared all 4 rounds! +${data.winnings ?? 0} coins!`);
+      } else {
+        setMessage("💥 You lost the run. Try again!");
+      }
+    } catch (err) {
+      console.error("RideTheBus settle error:", err);
+      setMessage("Server error saving result. (Is /api/ride-the-bus mounted?)");
+    }
   };
 
-  // --- ROUND HANDLERS ---
+  // ===== Reset =====
+  const resetToBetting = (msg = "") => {
+    setRunActive(false);
+    setAwaitingDecision(false);
+    setCompletedRounds(0);
+    setRound(0);
+    setCards([]);
+    setDeck([]);
+    setMessage(msg);
+  };
 
-  // ROUND 1 – Red or Black
-  const handleRedBlack = (guess) => {
-    const card = drawCard();
-    setCards([card]);
+  // ===== Start Run =====
+  const startRun = () => {
+    if (coins == null) return;
 
-    const isRed = card.suit === "hearts" || card.suit === "diamonds";
-    const actual = isRed ? "red" : "black";
-
-    if (actual !== guess) {
-      restart(
-        `❌ Wrong! The card was ${card.label} of ${card.suit} (${actual}). Starting over.`
-      );
+    const safeBet = Math.max(MIN_BET, Math.min(MAX_BET, Number(bet) || MIN_BET));
+    if (safeBet > coins) {
+      setMessage("❌ Not enough coins for that bet.");
       return;
     }
 
-    setMessage(`✔ Correct! It was ${actual} ${card.label} of ${card.suit}. `);
-    setRound(2);
+    setBet(safeBet);
+
+    const d = createDeck();
+    setDeck(d);
+    setCards([]);
+
+    setRunActive(true);
+    setAwaitingDecision(false);
+    setCompletedRounds(0);
+    setRound(1);
+
+    setMessage("🚌 Run started! Round 1: Red or Black?");
   };
 
-  // ROUND 2 – Higher or Lower
-  const handleHigherLower = (guess) => {
+  // ===== After round success: pause for Cashout/Next =====
+  const markRoundCorrect = (newCompletedRounds, nextRoundNumber) => {
+    setCompletedRounds(newCompletedRounds);
+    setAwaitingDecision(true);
+    setRound(nextRoundNumber);
+
+    const mult = CASHOUT_MULTIPLIERS[newCompletedRounds];
+    setMessage(
+      `✅ Round ${newCompletedRounds} cleared! Cash out for ${mult}× (return ${bet * mult}) or continue?`
+    );
+  };
+
+  const handleNextRound = () => {
+    setAwaitingDecision(false);
+    setMessage(`Round ${round}: Make your guess!`);
+  };
+
+  const handleCashOut = async () => {
+    const rc = completedRounds;
+    setRunActive(false);
+    setAwaitingDecision(false);
+
+    await settleRun("cashout", rc);
+    resetToBetting("💰 Cashout complete. Place a new bet to play again.");
+  };
+
+  // ===== Card rendering helpers =====
+  const isRedSuit = (s) => s === "hearts" || s === "diamonds";
+  const suitSymbol = (s) => {
+    if (s === "hearts") return "♥";
+    if (s === "diamonds") return "♦";
+    if (s === "clubs") return "♣";
+    return "♠";
+  };
+
+  // ===== Round 1 =====
+  const handleRedBlack = async (guess) => {
+    if (!runActive || awaitingDecision || round !== 1) return;
+
+    const card = popCardFromDeck();
+    if (!card) return;
+
+    setCards([card]);
+
+    const actual = isRedSuit(card.suit) ? "red" : "black";
+    if (actual !== guess) {
+      await settleRun("loss", 0);
+      resetToBetting(`❌ Wrong! ${card.label}${suitSymbol(card.suit)} was ${actual}.`);
+      return;
+    }
+
+    markRoundCorrect(1, 2);
+  };
+
+  // ===== Round 2 =====
+  const handleHigherLower = async (guess) => {
+    if (!runActive || awaitingDecision || round !== 2) return;
+
     const first = cards[0];
-    const next = drawCard();
+    const next = popCardFromDeck();
+    if (!first || !next) return;
+
     setCards([first, next]);
 
     const correct =
@@ -87,103 +227,190 @@ export default function RideTheBus() {
       (guess === "lower" && next.value < first.value);
 
     if (!correct) {
-      restart(`❌ Wrong! It was ${next.label}. Restarting.`);
+      await settleRun("loss", 1);
+      resetToBetting(`❌ Wrong! Drew ${next.label}${suitSymbol(next.suit)}.`);
       return;
     }
 
-    setMessage(`✔ Correct! Drew ${next.label}.`);
-    setRound(3);
+    markRoundCorrect(2, 3);
   };
 
-  // ROUND 3 – Inside or Outside
-  const handleInsideOutside = (guess) => {
+  // ===== Round 3 =====
+  const handleInsideOutside = async (guess) => {
+    if (!runActive || awaitingDecision || round !== 3) return;
+
     const [c1, c2] = cards;
-    const next = drawCard();
+    const next = popCardFromDeck();
+    if (!c1 || !c2 || !next) return;
+
     setCards([c1, c2, next]);
 
     const min = Math.min(c1.value, c2.value);
     const max = Math.max(c1.value, c2.value);
+
+    // Inside = strictly between (no ties)
     const inside = next.value > min && next.value < max;
 
-    const correct =
-      (inside && guess === "inside") || (!inside && guess === "outside");
-
+    const correct = (inside && guess === "inside") || (!inside && guess === "outside");
     if (!correct) {
-      restart(`❌ Wrong! It was ${next.label}. Restarting.`);
+      await settleRun("loss", 2);
+      resetToBetting(`❌ Wrong! Drew ${next.label}${suitSymbol(next.suit)}.`);
       return;
     }
 
-    setMessage(`✔ Correct! Drew ${next.label}.`);
-    setRound(4);
+    markRoundCorrect(3, 4);
   };
 
-  // ROUND 4 – Suit Guess
-  const handleSuit = (guess) => {
-    const next = drawCard();
-    setCards([...cards, next]);
+  // ===== Round 4 =====
+  const handleSuit = async (guess) => {
+    if (!runActive || awaitingDecision || round !== 4) return;
+
+    const next = popCardFromDeck();
+    if (!next) return;
+
+    setCards((prev) => [...prev, next]);
 
     if (next.suit !== guess) {
-      restart(
-        `❌ Wrong! It was ${next.label} of ${next.suit}. Restarting game.`
-      );
+      await settleRun("loss", 3);
+      resetToBetting(`❌ Wrong! It was ${next.label}${suitSymbol(next.suit)}.`);
       return;
     }
-    setMessage('Card: ' + next.label + ' of ' + next.suit + '.');
-    setMessage(`🎉 Correct! Finished all 4 rounds!`);
-    setRound(5);
+
+    // WIN
+    setRunActive(false);
+    setAwaitingDecision(false);
+    setCompletedRounds(4);
+
+    await settleRun("win", 4);
+    resetToBetting("🏆 Win! Place a new bet to play again.");
   };
 
+  const cashoutValue =
+    completedRounds > 0 ? bet * (CASHOUT_MULTIPLIERS[completedRounds] || 0) : 0;
+
+  if (loadingCoins) {
+    return (
+      <div className="game-page rtb-page">
+        <h2 className="rtb-title">🚌 Ride The Bus</h2>
+        <div className="rtb-message-box">
+          <p>Loading coins…</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="game-page">
-      <h2>🚌 Ride The Bus</h2>
+    <div className="game-page rtb-page">
+      <h2 className="rtb-title">🚌 Ride The Bus</h2>
 
-      <p>{message}</p>
-      <p>Round {round}</p>
+      <div className="rtb-coins">💰 Coins: {coins ?? "…"}</div>
 
-      {/* ROUND 1 */}
-      {round === 1 && (
-        <>
-          <p>Red or Black?</p>
-          <button onClick={() => handleRedBlack("red")}>Red</button>
-          <button onClick={() => handleRedBlack("black")}>Black</button>
-        </>
+      <div className="rtb-message-box">
+        <p>{message || "Place a bet to start."}</p>
+        {runActive && <p className="rtb-round">Round {round}</p>}
+        {awaitingDecision && completedRounds > 0 && (
+          <p className="rtb-subtext">
+            Cashout return: <strong>{cashoutValue}</strong> coins
+          </p>
+        )}
+      </div>
+
+      {/* Cards display (persists across rounds) */}
+      {cards.length > 0 && (
+        <div className="rtb-card-row">
+          {cards.map((card, i) => (
+            <div
+              key={i}
+              className={`rtb-card ${isRedSuit(card.suit) ? "red-card" : "black-card"}`}
+            >
+              <div className="rtb-card-top">{card.label}</div>
+              <div className="rtb-card-mid">{suitSymbol(card.suit)}</div>
+              <div className="rtb-card-bot">{card.suit}</div>
+            </div>
+          ))}
+        </div>
       )}
 
-      {/* ROUND 2 */}
-      {round === 2 && (
-        <>
-          <p>Higher or Lower?</p>
-          <button onClick={() => handleHigherLower("higher")}>Higher</button>
-          <button onClick={() => handleHigherLower("lower")}>Lower</button>
-        </>
+      {/* Betting box (only when not in a run) */}
+      {!runActive && (
+        <div className="betting-box">
+          <h3>Place Bet (1–50)</h3>
+          <input
+            type="number"
+            value={bet}
+            min={MIN_BET}
+            max={MAX_BET}
+            onChange={(e) =>
+              setBet(Math.max(MIN_BET, Math.min(MAX_BET, Number(e.target.value))))
+            }
+          />
+          <button className="rtb-btn" onClick={startRun}>
+            Start Run (Bet {bet})
+          </button>
+        </div>
       )}
 
-      {/* ROUND 3 */}
-      {round === 3 && (
-        <>
-          <p>Inside or Outside?</p>
-          <button onClick={() => handleInsideOutside("inside")}>Inside</button>
-          <button onClick={() => handleInsideOutside("outside")}>Outside</button>
-        </>
+      {/* Decision buttons after each successful round */}
+      {runActive && awaitingDecision && (
+        <div className="rtb-actions">
+          <button className="rtb-btn cashout" onClick={handleCashOut}>
+            💰 Cash Out
+          </button>
+          <button className="rtb-btn next" onClick={handleNextRound}>
+            ➡️ Next Round
+          </button>
+        </div>
       )}
 
-      {/* ROUND 4 */}
-      {round === 4 && (
-        <>
-          <p>Pick a Suit:</p>
-          <button onClick={() => handleSuit("hearts")}>Hearts</button>
-          <button onClick={() => handleSuit("diamonds")}>Diamonds</button>
-          <button onClick={() => handleSuit("clubs")}>Clubs</button>
-          <button onClick={() => handleSuit("spades")}>Spades</button>
-        </>
+      {/* Round controls */}
+      {runActive && !awaitingDecision && round === 1 && (
+        <div className="rtb-actions">
+          <button className="rtb-btn" onClick={() => handleRedBlack("red")}>
+            Red
+          </button>
+          <button className="rtb-btn" onClick={() => handleRedBlack("black")}>
+            Black
+          </button>
+        </div>
       )}
 
-      {/* FINISHED */}
-      {round === 5 && (
-        <>
-          <h3>🎉 You completed all 4 rounds!</h3>
-          <button onClick={() => restart("New Game Started!")}>Play Again</button>
-        </>
+      {runActive && !awaitingDecision && round === 2 && (
+        <div className="rtb-actions">
+          <button className="rtb-btn" onClick={() => handleHigherLower("higher")}>
+            Higher
+          </button>
+          <button className="rtb-btn" onClick={() => handleHigherLower("lower")}>
+            Lower
+          </button>
+        </div>
+      )}
+
+      {runActive && !awaitingDecision && round === 3 && (
+        <div className="rtb-actions">
+          <button className="rtb-btn" onClick={() => handleInsideOutside("inside")}>
+            Inside
+          </button>
+          <button className="rtb-btn" onClick={() => handleInsideOutside("outside")}>
+            Outside
+          </button>
+        </div>
+      )}
+
+      {runActive && !awaitingDecision && round === 4 && (
+        <div className="rtb-actions">
+          <button className="rtb-btn hearts" onClick={() => handleSuit("hearts")}>
+            Hearts
+          </button>
+          <button className="rtb-btn diamonds" onClick={() => handleSuit("diamonds")}>
+            Diamonds
+          </button>
+          <button className="rtb-btn clubs" onClick={() => handleSuit("clubs")}>
+            Clubs
+          </button>
+          <button className="rtb-btn spades" onClick={() => handleSuit("spades")}>
+            Spades
+          </button>
+        </div>
       )}
 
       <button className="back-button" onClick={() => navigate("/games")}>

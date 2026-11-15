@@ -8,7 +8,7 @@ export default function GameScreen() {
     { name: "Slots", path: "/games/slots" },
     { name: "Blackjack", path: "/games/blackjack" },
     { name: "Ride The Bus", path: "/games/ride-the-bus" },
-    { name: "Dice", path: "/games/dice" },
+    { name: "Keno", path: "/games/keno" },
   ];
 
   return (

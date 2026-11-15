@@ -1,109 +1,227 @@
-/* ------------ Main Layout ------------- */
+/* ===== Ride The Bus (scoped, red casino theme) ===== */
 
-.game-page {
+.rtb-page {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px;
+  padding: 28px;
   color: #fff;
   font-family: "Segoe UI", sans-serif;
 }
 
-/* Round Title */
-h2 {
-  margin-bottom: 10px;
+/* Title */
+.rtb-title {
+  margin-bottom: 8px;
   font-size: 2.4rem;
-  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 12px rgba(255, 77, 77, 0.55);
 }
 
-p {
-  margin: 8px 0;
-  font-size: 1.2rem;
+/* Coins */
+.rtb-coins {
+  margin: 6px 0 14px;
+  font-size: 1.15rem;
+  color: #ff4d4d;
+  font-weight: 800;
+  text-shadow: 0 0 10px rgba(255, 77, 77, 0.45);
 }
 
-/* ------------ Message Box ------------- */
-
-.message-box {
-  background: rgba(255, 255, 255, 0.15);
-  padding: 12px 16px;
-  border-radius: 10px;
-  margin-bottom: 20px;
+/* Message box */
+.rtb-message-box {
+  width: min(560px, 92vw);
+  background: radial-gradient(circle at top, rgba(20, 20, 24, 0.92), rgba(5, 5, 8, 0.92));
+  border: 1px solid rgba(255, 77, 77, 0.55);
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.85),
+    0 0 16px rgba(255, 77, 77, 0.25);
+  padding: 14px 16px;
+  border-radius: 16px;
   text-align: center;
-  width: 80%;
-  max-width: 400px;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  margin: 10px 0 16px;
 }
 
-/* ------------ Buttons ------------- */
-
-button {
-  background-color: #2c2f33;
-  color: #fff;
-  border: 2px solid #555;
-  padding: 10px 16px;
-  margin: 8px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.rtb-message-box p {
+  margin: 6px 0;
+  font-size: 1.05rem;
 }
 
-button:hover {
-  background-color: #444;
-  transform: scale(1.05);
+.rtb-round {
+  margin: 2px 0 6px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #f1f5f9;
 }
 
-/* Correct feedback */
-button.correct {
-  background-color: #27ae60 !important;
-  border-color: #1e8449;
+.rtb-subtext {
+  opacity: 0.95;
 }
 
-/* Wrong feedback */
-button.wrong {
-  background-color: #e74c3c !important;
-  border-color: #c0392b;
+/* Betting box */
+.betting-box {
+  width: min(440px, 92vw);
+  background: radial-gradient(circle at top, rgba(25, 25, 30, 0.92), rgba(5, 5, 8, 0.92));
+  border: 1px solid rgba(255, 77, 77, 0.55);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.85),
+    0 0 14px rgba(255, 77, 77, 0.22);
+  margin: 10px 0 16px;
+  text-align: center;
 }
 
-/* Suit-themed buttons */
-button.hearts,
-button.diamonds {
-  border-color: #e74c3c;
+.betting-box h3 {
+  margin: 0 0 10px;
+  color: #ffe1e1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 1rem;
 }
 
-button.clubs,
-button.spades {
-  border-color: #3498db;
-}
-
-/* Back button at the bottom */
-.back-button {
-  margin-top: 25px;
-  background-color: #444;
-  border-color: #666;
-}
-
-.back-button:hover {
-  background-color: #555;
-}
-
-/* ------------ Card Display (optional) ------------- */
-
-.card-display {
-  margin-top: 15px;
-  padding: 10px 18px;
-  background: rgba(255, 255, 255, 0.12);
+.betting-box input[type="number"] {
+  width: 150px;
+  padding: 10px 12px;
   border-radius: 12px;
-  font-size: 1.3rem;
-  font-weight: bold;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(15, 15, 18, 0.92);
+  color: #fff;
+  outline: none;
+  font-size: 1.05rem;
+  text-align: center;
+  margin-bottom: 12px;
 }
 
-/* Fancy card colors */
-.red-card {
-  color: #ff7675;
+.betting-box input[type="number"]:focus {
+  border-color: rgba(255, 77, 77, 0.9);
+  box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.15);
 }
+
+/* Buttons layout */
+.rtb-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 8px 0 4px;
+}
+
+/* Base button */
+.rtb-btn {
+  background: linear-gradient(180deg, #17171b, #0b0b10);
+  color: #f9fafb;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+  min-width: 130px;
+}
+
+.rtb-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 77, 77, 0.85);
+  box-shadow: 0 0 16px rgba(255, 77, 77, 0.28);
+}
+
+.rtb-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Special decision buttons */
+.rtb-btn.cashout {
+  border-color: rgba(34, 197, 94, 0.6);
+}
+.rtb-btn.cashout:hover {
+  border-color: rgba(34, 197, 94, 0.95);
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.25);
+}
+
+.rtb-btn.next {
+  border-color: rgba(59, 130, 246, 0.6);
+}
+.rtb-btn.next:hover {
+  border-color: rgba(59, 130, 246, 0.95);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.25);
+}
+
+/* Suit buttons */
+.rtb-btn.hearts,
+.rtb-btn.diamonds {
+  border-color: rgba(255, 77, 77, 0.65);
+}
+.rtb-btn.hearts:hover,
+.rtb-btn.diamonds:hover {
+  border-color: rgba(255, 77, 77, 0.95);
+  box-shadow: 0 0 16px rgba(255, 77, 77, 0.32);
+}
+
+.rtb-btn.clubs,
+.rtb-btn.spades {
+  border-color: rgba(226, 232, 240, 0.55);
+}
+.rtb-btn.clubs:hover,
+.rtb-btn.spades:hover {
+  border-color: rgba(226, 232, 240, 0.9);
+  box-shadow: 0 0 16px rgba(226, 232, 240, 0.18);
+}
+
+/* Back button: rely on your shared .back-button if you have one.
+   This just adds a bit of spacing. */
+.back-button {
+  margin-top: 22px;
+}
+
+/* Cards row */
+.rtb-card-row {
+  display: flex;
+  gap: 12px;
+  margin: 8px 0 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.rtb-card {
+  width: 120px;
+  height: 150px;
+  border-radius: 16px;
+  background: radial-gradient(circle at top, rgba(255,255,255,0.10), rgba(0,0,0,0.25));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.7),
+    0 0 16px rgba(255, 77, 77, 0.18);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  text-transform: capitalize;
+}
+
+.rtb-card-top,
+.rtb-card-bot {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.rtb-card-mid {
+  font-size: 2.2rem;
+  font-weight: 900;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.red-card {
+  color: #ff4d4d;
+  border-color: rgba(255, 77, 77, 0.55);
+}
+
 .black-card {
-  color: #d0d0d0;
+  color: #e5e7eb;
 }

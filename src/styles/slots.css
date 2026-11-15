@@ -1,68 +1,201 @@
-/* #Slots game styles */
+/* ================================
+   FULL-SCREEN LAYOUT (Desktop + Mobile)
+================================ */
 
-/* Container same as other games */
-.game-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 30px;
-    color: #fff;
-    font-family: "Segoe UI", sans-serif;
+.slots-screen {
+  height: 100vh;
+  width: 100vw;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  padding-top: 40px;
+  box-sizing: border-box;
+
+  background: radial-gradient(circle at top, #3a0058, #000);
+
+  color: #fff;
+  font-family: "Segoe UI", sans-serif;
+
+  overflow: hidden;
 }
 
 /* Title */
-h2 {
-    margin-bottom: 10px;
+.slots-title {
+  font-size: 2.8rem;
+  font-weight: bold;
+  text-shadow: 0 0 9px rgba(255, 255, 255, 0.4);
+  margin-bottom: 20px;
+}
+
+/* Coins */
+.slots-coins {
+  font-size: 1.4rem;
+  margin-bottom: 25px;
+  font-weight: bold;
+  color: #ffd86a;
+}
+
+/* ================================
+   REELS (Desktop Default)
+================================ */
+
+.slots-reels {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 20px 0 30px;
+}
+
+.slots-reel {
+  width: 110px;
+  height: 110px;
+
+  font-size: 3.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 20px;
+  border: 3px solid #ffcc33;
+
+  background: #111;
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.7),
+    0 0 12px rgba(255, 204, 51, 0.4);
+
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+/* ================================
+   SPIN BUTTON
+================================ */
+
+.slots-spin-btn {
+  padding: 16px 50px;
+  font-size: 1.4rem;
+  font-weight: bold;
+
+  background: linear-gradient(90deg, #ff4b4b, #ffa640);
+  border: none;
+  border-radius: 30px;
+
+  color: white;
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.6),
+    0 0 14px rgba(255, 120, 50, 0.7);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.slots-spin-btn:hover {
+  transform: scale(1.05);
+}
+
+.slots-spin-btn:active {
+  transform: scale(0.97);
+}
+
+/* ================================
+   MESSAGE
+================================ */
+
+.slots-message {
+  margin-top: 12px;
+  font-size: 1.4rem;
+  min-height: 1.6rem;
+}
+
+.slots-message.win {
+  color: #ffe56a;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(255, 229, 100, 0.8);
+}
+
+/* ================================
+   BACK BUTTON
+================================ */
+
+.slots-back-btn {
+  margin-top: auto;
+  margin-bottom: 25px;
+
+  padding: 12px 24px;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 12px;
+
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.1rem;
+
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.slots-back-btn:hover {
+  opacity: 0.85;
+  transform: scale(1.03);
+}
+
+/* ================================
+   MOBILE RESPONSIVE DESIGN
+================================ */
+
+@media (max-width: 600px) {
+
+  .slots-title {
+    font-size: 2.2rem;
+  }
+
+  .slots-reel {
+    width: 80px;
+    height: 80px;
     font-size: 2.4rem;
-    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
-}
+    border-width: 2px;
+  }
 
-/* Reels */
-.reels {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.reel {
-    font-size: 3rem;
-    border: 2px solid #da353c;
-    border-radius: 10px;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 10px;
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 10px rgba(218, 53, 60, 0.4);
-}
-
-.coins-display {
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.game-button,
-.back-button {
-    background-color: #2c2f33;
-    color: #fff;
-    border: 2px solid #555;
-    padding: 10px 16px;
-    margin: 8px;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.game-button:hover,
-.back-button:hover {
-    background-color: #444;
-    transform: scale(1.05);
-}
-
-.message {
-    margin-top: 10px;
+  .slots-spin-btn {
+    width: 85%;
+    max-width: 300px;
+    padding: 14px 0;
     font-size: 1.2rem;
+  }
+
+  .slots-coins {
+    font-size: 1.2rem;
+  }
+
+  .slots-screen {
+    padding-top: 30px;
+  }
+}
+
+/* BIG SCREENS (Large Laptops & Desktop) */
+@media (min-width: 1200px) {
+
+  .slots-reel {
+    width: 130px;
+    height: 130px;
+    font-size: 3.4rem;
+  }
+
+  .slots-spin-btn {
+    font-size: 1.5rem;
+    padding: 18px 60px;
+  }
+}
+
+/* Optional: make spinning look more alive */
+.slots-reels.spinning .slots-reel {
+  animation: reelShake 0.15s infinite linear;
+}
+
+@keyframes reelShake {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
+  100% { transform: translateY(0px); }
 }
